@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspose.OCR" Version="22.7.0" />
     <PackageReference Include="ConvertApi" Version="3.0.7" />
     <PackageReference Include="GroupDocs.Conversion" Version="22.6.0" />
     <PackageReference Include="iTextSharp" Version="5.5.13.3" />

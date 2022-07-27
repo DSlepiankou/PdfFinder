@@ -6,6 +6,7 @@ using iTextSharp.text.pdf.parser;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ConsoleApp1
@@ -30,7 +31,7 @@ namespace ConsoleApp1
                     Console.Write(" Page №");
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine(": {0}", i);
-                    pages.Add( new BooksData { FileName = file, Page = i });
+                    pages.Add(new BooksData { FileName = file, Page = i });
                 }
             }
 
@@ -47,7 +48,15 @@ namespace ConsoleApp1
             using (PdfReader reader = new PdfReader(fileName))
             {
                 Document document = new Document();
-                PdfCopy pdfCopyFicha = new PdfCopy(document, new FileStream($"{outputFolder}/{System.IO.Path.GetFileNameWithoutExtension(fileName)}({counter}).pdf", FileMode.Create));
+
+                var year = FileNameHelper(fileName);
+                if (!Directory.Exists($"{outputFolder}/{year}"))
+                {
+                    Directory.CreateDirectory($"{outputFolder}/{year}");
+                }
+                var destinationFolder = $"{outputFolder}/{year}";
+
+                PdfCopy pdfCopyFicha = new PdfCopy(document, new FileStream($"{destinationFolder}\\{System.IO.Path.GetFileNameWithoutExtension(fileName)}({counter}).pdf", FileMode.Create));
                 document.Open();
 
                 pdfCopyFicha.AddPage(pdfCopyFicha.GetImportedPage(reader, numberOfPage));
@@ -66,14 +75,29 @@ namespace ConsoleApp1
             Console.WriteLine("{0} %", percent);
         }
 
-        public async void Converter(string file, string outputFolder)
+        public async Task Converter(string file, string outputFolder)
         {
             ConvertApi convertApi = new ConvertApi("3NbJqDrbWg1OksP3");
-            var fileName = System.IO.Path.GetFileName(file);
+            //var fileName = System.IO.Path.GetFileName(file);
+            var fileNameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(file);
             var convert = await convertApi.ConvertAsync("djvu", "pdf",
                         new ConvertApiFileParam(file)
                         );
-            await convert.SaveFileAsync($"{outputFolder}/{fileName}");
+            var year = FileNameHelper(file);
+            if (!Directory.Exists($"{outputFolder}/{year}"))
+            {
+                Directory.CreateDirectory($"{outputFolder}/{year}");
+            }
+            var destinationFolder = $"{outputFolder}/{year}";
+            await convert.SaveFileAsync($"{destinationFolder}\\{fileNameWithoutExt}.pdf");
+        }
+
+        private string FileNameHelper(string file)
+        {
+            var regexp = @"\b\d{4}";
+            Regex regex = new Regex(regexp);
+            var fileNameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(file);
+            return regex.Matches(fileNameWithoutExt)[0].Value;
         }
     }
 }
