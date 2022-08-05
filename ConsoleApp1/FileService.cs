@@ -60,7 +60,6 @@ namespace ConsoleApp1
                 document.Open();
 
                 pdfCopyFicha.AddPage(pdfCopyFicha.GetImportedPage(reader, numberOfPage));
-
                 document.Close();
             }
         }
@@ -77,7 +76,7 @@ namespace ConsoleApp1
 
         public async Task Converter(string file, string outputFolder)
         {
-            ConvertApi convertApi = new ConvertApi("3NbJqDrbWg1OksP3");
+            ConvertApi convertApi = new ConvertApi("Cr5GWW7jjOfplyVj");
             //var fileName = System.IO.Path.GetFileName(file);
             var fileNameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(file);
             var convert = await convertApi.ConvertAsync("djvu", "pdf",

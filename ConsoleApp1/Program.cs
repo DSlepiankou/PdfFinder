@@ -1,14 +1,8 @@
-﻿using Aspose.OCR;
-using ConvertApiDotNet;
-using ConvertApiDotNet.Model;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
-using iTextSharp.text.pdf.parser;
+﻿using iTextSharp.text.pdf;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ConsoleApp1
@@ -20,7 +14,7 @@ namespace ConsoleApp1
             var directory = @"C:\Users\User\Desktop\AllFiles";
             var outputFolder = @"C:\Users\User\Desktop\Results";
             var outputFolderForConvertedFiles = @"C:\Users\User\Desktop\ConvertedFiles";
-            var pattern = "Еольшинцова";
+            var pattern = "Егоров";
 
             var service = new FileService();
             var counter = 0;
@@ -29,18 +23,21 @@ namespace ConsoleApp1
 
             Dictionary<int, BooksData> pageInfos = new Dictionary<int, BooksData>();
 
-            Console.WriteLine("{0} pdf files found", pdfFiles.Count);
 
             List<string> djvuFiles = Directory.GetFiles(directory, "*.djvu", SearchOption.AllDirectories).ToList();
 
             Console.WriteLine("{0} djvu files found", djvuFiles.Count);
-            
+            var fileCounter = 1;
+
             foreach (var file in djvuFiles)
             {
+                var a = Path.GetFileName(file);
+                Console.WriteLine("{0} start process convert djvu {1} to pdf", fileCounter, a);
                 await service.Converter(file, outputFolderForConvertedFiles);
+                fileCounter++;
             }
 
-            List<string> convertedFiles = Directory.GetFiles(directory, "*.pdf", SearchOption.AllDirectories).ToList();
+            List<string> convertedFiles = Directory.GetFiles(outputFolderForConvertedFiles, "*.pdf", SearchOption.AllDirectories).ToList();
 
             foreach (var file in convertedFiles)
             {
@@ -68,10 +65,13 @@ namespace ConsoleApp1
                 }
             }
 
+            Console.WriteLine("{0} pdf files found", pdfFiles.Count + convertedFiles.Count);
+
             foreach (var info in pageInfos)
             {
                 try
                 {
+                    Console.WriteLine("start proceed");
                     service.StoreRersult(outputFolder, info.Value.FileName, info.Value.Page, info.Key);
                     service.PercentCalculatorFormatter(info.Key, pageInfos.Count);
                 }
@@ -83,7 +83,7 @@ namespace ConsoleApp1
             }
 
             Console.WriteLine("Done");
-            
+
         }
     }
 }
